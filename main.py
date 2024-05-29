@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 # URL to fetch the HTML content from
 url = 'https://riyasewana.com/search/cars/toyota/axio'
@@ -10,74 +11,85 @@ headers = {
 }
 
 # Make an HTTP GET request to fetch the HTML content
-response = requests.get(url , headers=headers)
+response = requests.get(url, headers=headers)
 
 # Check if the request was successful
 if response.status_code == 200:
     # Parse the HTML content with BeautifulSoup
-    soup = BeautifulSoup(response.content , 'html.parser')
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-    links_for_vehicle = []
-    name_of_vehicle = []
-    prices = []
-    mileage_of_vehicle = []
-    vehicle_location = []
+    data = {
+        'Name': [],
+        'Location': [],
+        'Price': [],
+        'Mileage': [],
+        'Link': []
+    }
 
     # Find all elements with class "item round"
     for elements in soup.find_all(class_="item round"):
-        # 1. Name of the vehicle
-        name = elements.find('h2' , class_='more').a.text
-        name_of_vehicle.append(name)
+        # Name of the vehicle
+        name = elements.find('h2', class_='more').a.text
+        data['Name'].append(name)
 
-        # 2. Location of the vehicle
-        location = elements.find("div" , class_="boxintxt").text.strip()
-        vehicle_location.append(location)
+        # Location of the vehicle
+        location = elements.find("div", class_="boxintxt").text.strip()
+        data['Location'].append(location)
 
-        # 3. Price for the vehicle
-        price_text = elements.find("div" , class_="boxintxt b").text.strip()
+        # Price for the vehicle
+        price_text = elements.find("div", class_="boxintxt b").text.strip()
         if "negotiable" in price_text.lower():
-            price = 0
+            price = None
         else:
             try:
-                price = float(price_text.replace('Rs.' , '').replace(',' , '').strip())
+                price = float(price_text.replace('Rs.', '').replace(',', '').strip())
             except ValueError:
-                price = 0
-        prices.append(price)
+                price = None
+        data['Price'].append(price)
 
-        # 4. Mileage of the vehicle
-        boxintxt_divs = elements.find_all('div' , class_='boxintxt')
+        # Mileage of the vehicle
+        boxintxt_divs = elements.find_all('div', class_='boxintxt')
         mileage_text = boxintxt_divs[2].text.strip() if len(boxintxt_divs) > 2 else '0 km'
         if '(km)' in mileage_text:
-            mileage = int(mileage_text.replace('(km)' , '').strip())
+            mileage = int(mileage_text.replace('(km)', '').replace(',', '').strip())
         else:
             mileage = 0  # Default to 0 if no mileage is found
-        mileage_of_vehicle.append(mileage)
+        data['Mileage'].append(mileage)
 
-        # 5. Link for the vehicle
-        link = elements.find('h2' , class_='more').a['href']
-        links_for_vehicle.append(link)
+        # Link for the vehicle
+        link = elements.find('h2', class_='more').a['href']
+        data['Link'].append(link)
 
-    # Find the index of the maximum mileage
-    max_prices = prices.index(max(prices))
-
-    # Print the details of the vehicle with the maximum mileage
-    print(f"{name_of_vehicle[max_prices]}, price: {prices[max_prices]}, "
-          f"location: {vehicle_location[max_prices]}, link: {links_for_vehicle[max_prices]}, "
-          f"mileage: {mileage_of_vehicle[max_prices]} km")
-
-
-    print(links_for_vehicle)
-    print(name_of_vehicle)
-    print(mileage_of_vehicle)
-    print(prices)
-    print(vehicle_location)
-
-
-
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    print(df)
 else:
     print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
 
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import tkinter as tk
 
+def plot_data():
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(df['Mileage'], df['Price'])
+    ax.set_xlabel('Mileage (km)')
+    ax.set_ylabel('Price (Rs.)')
+    ax.set_title('Price vs Mileage for Vehicles')
 
+    # Integrate plot with Tkinter
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
 
+# Tkinter setup
+root = tk.Tk()
+root.title('Vehicle Data Plot')
+
+# Plot Button
+plot_button = tk.Button(root, text='Plot Data', command=plot_data)
+plot_button.pack()
+
+# Start Tkinter main loop
+root.mainloop()
