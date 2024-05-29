@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # URL to fetch the HTML content from
-url = 'https://riyasewana.com/search/cars'
+url = 'https://riyasewana.com/search/cars/toyota/axio'
 
 # Define headers to mimic a browser request
 headers = {
@@ -20,49 +20,64 @@ if response.status_code == 200:
     links_for_vehicle = []
     name_of_vehicle = []
     prices = []
-    milage_of_vehicle = []
+    mileage_of_vehicle = []
     vehicle_location = []
 
     # Find all elements with class "item round"
     for elements in soup.find_all(class_="item round"):
-
-        #  1   name of the vehicle
-        name = elements.find('h2', class_='more').a.text
+        # 1. Name of the vehicle
+        name = elements.find('h2' , class_='more').a.text
         name_of_vehicle.append(name)
 
-        # 2  location of the vehicle
+        # 2. Location of the vehicle
         location = elements.find("div" , class_="boxintxt").text.strip()
         vehicle_location.append(location)
 
-        # 5 price for the vehicle
-        price = elements.find("div" , class_="boxintxt b").text.strip()
+        # 3. Price for the vehicle
+        price_text = elements.find("div" , class_="boxintxt b").text.strip()
+        if "negotiable" in price_text.lower():
+            price = 0
+        else:
+            try:
+                price = float(price_text.replace('Rs.' , '').replace(',' , '').strip())
+            except ValueError:
+                price = 0
         prices.append(price)
 
+        # 4. Mileage of the vehicle
+        boxintxt_divs = elements.find_all('div' , class_='boxintxt')
+        mileage_text = boxintxt_divs[2].text.strip() if len(boxintxt_divs) > 2 else '0 km'
+        if '(km)' in mileage_text:
+            mileage = int(mileage_text.replace('(km)' , '').strip())
+        else:
+            mileage = 0  # Default to 0 if no mileage is found
+        mileage_of_vehicle.append(mileage)
 
-        # 3 milage of the vehicle
-    for y in soup.findAll("div", class_="boxtext"):
-            boxintxt_divs = y.find_all('div' , class_='boxintxt')
-            mileage = boxintxt_divs[2].text.strip()
-            milage_of_vehicle.append(mileage)
+        # 5. Link for the vehicle
+        link = elements.find('h2' , class_='more').a['href']
+        links_for_vehicle.append(link)
 
-        # 4 link for the vehicle
-    for x in soup.findAll("h2", class_="more"):
-           links_for_vehicle.append(x.find("a")["href"])
+    # Find the index of the maximum mileage
+    max_prices = prices.index(max(prices))
 
-
-
-    # Print the found elements
-    for element in elements:
-        print(links_for_vehicle)
-        print(name_of_vehicle)
-        print(milage_of_vehicle)
-        print(prices)
-        print(vehicle_location)
+    # Print the details of the vehicle with the maximum mileage
+    print(f"{name_of_vehicle[max_prices]}, price: {prices[max_prices]}, "
+          f"location: {vehicle_location[max_prices]}, link: {links_for_vehicle[max_prices]}, "
+          f"mileage: {mileage_of_vehicle[max_prices]} km")
 
 
-
+    print(links_for_vehicle)
+    print(name_of_vehicle)
+    print(mileage_of_vehicle)
+    print(prices)
+    print(vehicle_location)
 
 
 
 else:
     print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
+
+
+
+
+
