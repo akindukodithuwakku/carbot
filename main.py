@@ -20,26 +20,44 @@ if response.status_code == 200:
     links_for_vehicle = []
     name_of_vehicle = []
     prices = []
-    milage = []
+    milage_of_vehicle = []
+    vehicle_location = []
 
     # Find all elements with class "item round"
     for elements in soup.find_all(class_="item round"):
-        milage.append(elements.find("div", class_="boxintxt"))
-        prices.append(elements.find("div" , class_="boxintxt b"))
 
-        for x in soup.findAll("h2", class_="more"):
+        #  1   name of the vehicle
+        name = elements.find('h2', class_='more').a.text
+        name_of_vehicle.append(name)
+
+        # 2  location of the vehicle
+        location = elements.find("div" , class_="boxintxt").text.strip()
+        vehicle_location.append(location)
+
+        # 5 price for the vehicle
+        price = elements.find("div" , class_="boxintxt b").text.strip()
+        prices.append(price)
+
+
+        # 3 milage of the vehicle
+    for y in soup.findAll("div", class_="boxtext"):
+            boxintxt_divs = y.find_all('div' , class_='boxintxt')
+            mileage = boxintxt_divs[2].text.strip()
+            milage_of_vehicle.append(mileage)
+
+        # 4 link for the vehicle
+    for x in soup.findAll("h2", class_="more"):
            links_for_vehicle.append(x.find("a")["href"])
 
-        for y in soup.findAll("div", class_="imgbox"):
-            name_of_vehicle.append(y.find("title"))
 
 
     # Print the found elements
     for element in elements:
         print(links_for_vehicle)
         print(name_of_vehicle)
-        print(milage)
+        print(milage_of_vehicle)
         print(prices)
+        print(vehicle_location)
 
 
 
