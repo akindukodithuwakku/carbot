@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from tkinter import *
+
+BACKGROUND_COLOR = "#B1DDC6"
 
 # URL to fetch the HTML content from
 url = 'https://riyasewana.com/search/cars/toyota/axio'
@@ -42,7 +45,7 @@ if response.status_code == 200:
             price = None
         else:
             try:
-                price = float(price_text.replace('Rs.', '').replace(',', '').strip())
+                price = int(price_text.replace('Rs.', '').replace(',', '').strip())
             except ValueError:
                 price = None
         data['Price'].append(price)
@@ -67,29 +70,84 @@ else:
     print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
 
 
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import tkinter as tk
+#price calculations
 
-def plot_data():
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(df['Mileage'], df['Price'])
-    ax.set_xlabel('Mileage (km)')
-    ax.set_ylabel('Price (Rs.)')
-    ax.set_title('Price vs Mileage for Vehicles')
+price_list = []
+def highest():
+    pass
+    # maxPrice = max(price)
+    # new_window = Canvas(window, width=200, height=200)
+    # results = Label(new_window, text="", font=(16))
+    # results.grid(column=0, row=1, pady=10)
+    #
+    # results.config(text=f"{maxPrice}")
+    #
+    # exit_button = Button(window , text="Back" , font=("Helvetica" , 14) , bg="#f44336" , fg="white" ,
+    #                      command=window.quit)
+    # exit_button.grid(column=0 , row=2 , columnspan=3 , pady=10)
 
-    # Integrate plot with Tkinter
-    canvas = FigureCanvasTkAgg(fig, master=root)
-    canvas.draw()
-    canvas.get_tk_widget().pack()
 
-# Tkinter setup
-root = tk.Tk()
-root.title('Vehicle Data Plot')
+def lowest():
+   pass
 
-# Plot Button
-plot_button = tk.Button(root, text='Plot Data', command=plot_data)
-plot_button.pack()
 
-# Start Tkinter main loop
-root.mainloop()
+
+# ui creation
+from tkinter import Tk, Label, Canvas, Entry, Button, Frame
+
+# Define background color
+BACKGROUND_COLOR = "#f0f0f0"
+
+# Initialize the main window
+window = Tk()
+window.title("Car Price Analyzer")
+window.config(pady=20, padx=20, bg=BACKGROUND_COLOR)
+
+# Title label
+title = Label(window, text="Find Your Dream Vehicle", font=("Helvetica", 24, "bold"), bg=BACKGROUND_COLOR)
+title.grid(column=0, row=0, columnspan=3, pady=10)
+
+# Create a frame for the car name entry
+entry_frame = Frame(window, bg=BACKGROUND_COLOR)
+entry_frame.grid(column=0, row=1, columnspan=3, pady=10)
+
+car_name_label = Label(entry_frame, text="Enter Car Name:", font=("Helvetica", 14), bg=BACKGROUND_COLOR)
+car_name_label.pack(side="left", padx=5)
+
+car_name_entry = Entry(entry_frame, font=("Helvetica", 14), width=20)
+car_name_entry.pack(side="left", padx=5)
+
+# Canvas for image or other content
+canvas = Canvas(window, height=300, width=300, bg="white")
+canvas.grid(column=0, row=2, columnspan=3, pady=10)
+
+# Create a frame for price information
+price_frame = Frame(window, bg=BACKGROUND_COLOR)
+price_frame.grid(column=0, row=3, columnspan=3, pady=10)
+
+price_label = Label(price_frame, text="Price: ", font=("Helvetica", 14), bg=BACKGROUND_COLOR)
+price_label.grid(column=0, row=0, padx=10)
+
+Checkbutton(price_frame, text='Lowest', variable=lowest()).grid( column=1,row=0, padx=10)
+Checkbutton(price_frame, text='Highest', variable=highest()).grid(column=2, row=0, padx=10)
+
+
+# Search button
+search_button = Button(window, text="Search", width=20, height=2, font=("Helvetica", 14), bg="#4CAF50", fg="white")
+search_button.grid(column=0, row=4, columnspan=3, pady=10)
+
+# Price plot section
+price_plot_label = Label(window, text="Price vs Kms' Graphs", font=("Helvetica", 14, "bold"), bg=BACKGROUND_COLOR)
+price_plot_label.grid(column=0, row=5, columnspan=3, pady=10)
+
+price_plot_btn = Button(window, text="See Plot", font=("Helvetica", 14), bg="#2196F3", fg="white")
+price_plot_btn.grid(column=0, row=6, columnspan=3, pady=10)
+
+# Exit button
+exit_button = Button(window, text="Exit", font=("Helvetica", 14), bg="#f44336", fg="white", command=window.quit)
+exit_button.grid(column=0, row=7, columnspan=3, pady=10)
+
+# Run the application
+window.mainloop()
+
+
