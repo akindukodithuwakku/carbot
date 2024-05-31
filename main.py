@@ -38,6 +38,7 @@ if response.status_code == 200:
         price = elements.find("div" , class_="boxintxt b").text.strip()
         prices.append(price)
 
+
         # 3 milage of the vehicle
     for y in soup.findAll("div", class_="boxtext"):
             boxintxt_divs = y.find_all('div' , class_='boxintxt')
@@ -48,6 +49,8 @@ if response.status_code == 200:
     for x in soup.findAll("h2", class_="more"):
            links_for_vehicle.append(x.find("a")["href"])
 
+
+
     # Print the found elements
     for element in elements:
         print(links_for_vehicle)
@@ -55,6 +58,10 @@ if response.status_code == 200:
         print(milage_of_vehicle)
         print(prices)
         print(vehicle_location)
+
+
+
+
 
 
 else:
