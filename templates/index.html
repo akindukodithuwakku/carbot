@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Today Prices</title>
+</head>
+<body>
+    <form action="{{ url_for{'home'}}}" method="post">
+        <label> Search for car name: </label> <br>
+        <input type="text" id="carname" ><br>
+        <label> Price:</label>
+        <button type="submit">Submit </button>
+
+        <h2 id="highest"> </h2>
+    </form>
+
+</body>
+</html>
